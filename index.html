@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Document Generator</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <h1>Generate Report</h1>
+
+  <form id="reportForm">
+    <label>Course:
+      <select id="course">
+        <option value="BIO 137">BIO 137</option>
+        <option value="BIO 152">BIO 152</option>
+        <option value="BIO 153">BIO 153</option>
+      </select>
+    </label><br><br>
+
+    <label>Instructor:
+      <input type="text" id="instructor" value="Dr. Howard">
+    </label><br><br>
+
+    <button type="button" id="generate">Generate Document</button>
+  </form>
+
+  <script>
+  document.getElementById('generate').addEventListener('click', () => {
+    const course = document.getElementById('course').value;
+    const instructor = document.getElementById('instructor').value;
+
+    const content = `Course: ${course}\nInstructor: ${instructor}\nDate: ${new Date().toLocaleDateString()}`;
+
+    const blob = new Blob([content], { type: 'text/plain' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = `${course.replace(" ", "_")}_report.txt`;
+    link.click();
+  });
+  </script>
+</body>
+</html>
