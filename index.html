@@ -1,230 +1,66 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Lab Template</title>
-
-<!-- ====== CONFIG (edit these values) ====== -->
-<script>
-  const CONFIG = {
-    School: "KCTCS Somerset",
-    CourseCode: "BIO 152",
-    CourseTitle: "Principles of Biology II Lab",
-    Modality: "In-Person",
-    Instructor: "Justin N. Howard",
-    LabTitle: "Two-Point Discrimination",
-    Unit: "Unit 2",
-    Semester: "Fall",
-    Year: "2025"
-  };
-</script>
-
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Course Document Generator</title>
 <style>
-  /* ===== Shared settings (match LaTeX intent) ===== */
-  :root {
-    --deep-blue: rgb(0,40,90);
-    --page-max: 8.27in; /* A4 width */
-    --margin: 0.75in;
-    --text-color: #111;
-  }
-  @media print {
-    @page {
-      size: A4;
-      margin: 0.75in;
-    }
-  }
-
-  html, body {
-    color: var(--text-color);
-    background: #fff;
-    font-family: Georgia, "Times New Roman", serif; /* mirrors \setmainfont{Georgia} path */
-    line-height: 1.45;
-  }
-
-  .page {
-    max-width: calc(var(--page-max) - 2*var(--margin));
-    margin: 1.25rem auto;
-    padding: 0;
-  }
-
-  /* Title block */
-  .title-block {
-    margin-top: 0.25rem;
-    margin-bottom: 0.75rem;
-  }
-  .title-block .labtitle {
-    font-size: 1.9rem; /* roughly \Large */
-    font-weight: 700;
-    color: #000;
-    margin: 0 0 0.4rem 0;
-  }
-  .title-block hr {
-    border: 0;
-    height: 1px;
-    background: #bbb;
-    margin: 0.4rem 0 0.6rem;
-  }
-  .title-lines {
-    font-size: 0.95rem;
-    color: #222;
-  }
-  .muted {
-    color: #444;
-  }
-  .dot {
-    margin: 0 0.35rem;
-  }
-
-  /* Headings (section/subsection) */
-  h2.section {
-    font-size: 1.5rem; /* ~ \Large */
-    font-weight: 700;
-    color: var(--deep-blue);
-    margin: 1.1rem 0 0.4rem;
-  }
-  h3.subsection {
-    font-size: 1.05rem; /* ~ \normalsize bold */
-    font-weight: 700;
-    color: var(--deep-blue);
-    margin: 0.9rem 0 0.35rem;
-  }
-
-  /* Block spacing that mimics parskip/microtype feel */
-  p { margin: 0.5rem 0; }
-  ul, ol { margin: 0.45rem 0 0.65rem 1.25rem; }
-  .spacer-sm { height: 0.35rem; }
-  .spacer-md { height: 0.6rem; }
-  .spacer-lg { height: 1rem; }
-
-  /* Footer (print-friendly) */
-  .footer {
-    font-size: 0.75rem;
-    color: #555;
-    text-align: center;
-    margin-top: 1.2rem;
-    padding-top: 0.6rem;
-    border-top: 1px solid #ddd;
-  }
-
-  /* Page counter (works in print; "of N" support varies by browser) */
-  @media print {
-    .footer {
-      position: fixed;
-      bottom: 0.4in;
-      left: 0;
-      right: 0;
-      margin: 0 auto;
-      width: calc(var(--page-max) - 2*var(--margin));
-    }
-    /* Some UAs support counters; "of" total pages is not universal without a polyfill */
-    .page-num::after {
-      content: "Page " counter(page);
-    }
-  }
-
-  /* Links (match \hypersetup no colored boxes) */
-  a { color: inherit; text-decoration: underline; }
+  body { font-family: Georgia, serif; max-width: 8in; margin: 1in auto; line-height: 1.5; }
+  h1 { color: rgb(0,40,90); border-bottom: 1px solid #ccc; padding-bottom: 0.2em; }
+  label { display:block; margin-top:0.8em; }
+  select, input, textarea { width:100%; padding:0.4em; font-family:inherit; }
+  button { margin-top:1em; padding:0.5em 1em; cursor:pointer; }
+  #output { border:1px solid #ccc; padding:1em; margin-top:1.5em; }
 </style>
 </head>
 <body>
-  <main class="page" id="doc">
-    <!-- ===== Title Block (MakeTitleBlock) ===== -->
-    <header class="title-block" id="titleBlock">
-      <div class="labtitle" id="LabTitle"></div>
-      <hr />
-      <div class="title-lines">
-        <span id="CourseCode"></span>
-        <span class="dot">·</span>
-        <span id="CourseTitle"></span>
-      </div>
-      <div class="title-lines muted">
-        <span id="Semester"></span>&nbsp;<span id="Year"></span>
-        <span class="dot">·</span>
-        <span id="School"></span>
-        <span class="dot">·</span>
-        Instructor: <span id="Instructor"></span>
-        <span class="dot">·</span>
-        <span id="Modality"></span>
-      </div>
-    </header>
+<h1>Generate Course Document</h1>
 
-    <!-- ===== Body Content (use as repeatable structure) ===== -->
-    <h2 class="section">Overview</h2>
-    <p>Brief description of the activity or lab.</p>
+<form id="docForm">
+  <label>Course
+    <select id="course">
+      <option>BIO 137</option>
+      <option>BIO 152</option>
+      <option>BIO 153</option>
+    </select>
+  </label>
 
-    <h2 class="section">Objectives</h2>
-    <ul>
-      <li>Objective 1</li>
-      <li>Objective 2</li>
-      <li>Objective 3</li>
-    </ul>
+  <label>Instructor <input id="instructor" value="Justin N. Howard"></label>
+  <label>Topic
+    <select id="topic">
+      <option>Homeostasis</option>
+      <option>Tissues</option>
+      <option>Skull Landmarks</option>
+    </select>
+  </label>
 
-    <h2 class="section">Background</h2>
-    <p>Concise theoretical background section. Cite figures or diagrams if needed.</p>
+  <label>Notes <textarea id="notes" rows="4"></textarea></label>
+  <button type="button" id="generate">Render Document</button>
+</form>
 
-    <h2 class="section">Materials</h2>
-    <ul>
-      <li>Item A</li>
-      <li>Item B</li>
-      <li>Item C</li>
-    </ul>
-
-    <h2 class="section">Procedure</h2>
-    <h3 class="subsection">Part 1</h3>
-    <ol>
-      <li>Step 1</li>
-      <li>Step 2</li>
-    </ol>
-
-    <h3 class="subsection">Part 2</h3>
-    <ol start="3">
-      <li>Step 3</li>
-      <li>Step 4</li>
-    </ol>
-
-    <h2 class="section">Analysis & Questions</h2>
-    <ol>
-      <li>Question 1</li>
-      <li>Question 2</li>
-      <li>Question 3</li>
-    </ol>
-
-    <div class="spacer-lg"></div>
-
-    <!-- ===== Footer (mirrors \fancyfoot content style) ===== -->
-    <footer class="footer">
-      <span id="FooterLine"></span>
-      <span class="dot">—</span>
-      <span class="page-num">Page </span>
-      <!-- If total pages are needed in print: consider Paged.js later -->
-    </footer>
-  </main>
+<div id="output" hidden></div>
 
 <script>
-  // Populate fields (mirrors LaTeX \newcommand definitions)
-  function fill(id, value) {
-    const el = document.getElementById(id);
-    if (el) el.textContent = value ?? "";
-  }
+document.getElementById('generate').addEventListener('click', () => {
+  const course = document.getElementById('course').value;
+  const topic = document.getElementById('topic').value;
+  const instructor = document.getElementById('instructor').value;
+  const notes = document.getElementById('notes').value;
+  const date = new Date().toLocaleDateString();
 
-  const {
-    School, CourseCode, CourseTitle, Modality,
-    Instructor, LabTitle, Unit, Semester, Year
-  } = CONFIG;
+  // Render styled HTML (instead of downloading)
+  const html = `
+    <h2 style="color:rgb(0,40,90)">${topic}</h2>
+    <p><strong>${course}</strong> — ${date}</p>
+    <p><em>Instructor:</em> ${instructor}</p>
+    <hr>
+    <p>${notes || "(no notes provided)"}</p>
+  `;
 
-  fill("School", School);
-  fill("CourseCode", CourseCode);
-  fill("CourseTitle", CourseTitle);
-  fill("Modality", Modality);
-  fill("Instructor", Instructor);
-  fill("LabTitle", LabTitle);
-  fill("Semester", Semester);
-  fill("Year", Year);
-
-  // Footer text analogous to: School · CourseCode · Semester Year
-  const footerText = `${School} · ${CourseCode} · ${Semester} ${Year}`;
-  fill("FooterLine", footerText);
+  const out = document.getElementById('output');
+  out.innerHTML = html;
+  out.hidden = false;
+});
 </script>
 </body>
 </html>
