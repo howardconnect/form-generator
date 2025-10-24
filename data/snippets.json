@@ -1,0 +1,16 @@
+[[
+  {
+    "id": "ovw_two_point",
+    "section": "overview",
+    "title": "Two-Point Discrimination overview",
+    "body_md": "Touch acuity varies across the body due to mechanoreceptor density and cortical representation.",
+    "courses": ["BIO 153","BIO 137"]
+  },
+  {
+    "id": "bkg_two_point",
+    "section": "background",
+    "title": "Sensory physiology background",
+    "body_md": "Mechanoreceptors such as **Merkel** cells and **Meissner** corpuscles enable fine touch discrimination.",
+    "courses": ["BIO 153","BIO 137"]
+  }
+]

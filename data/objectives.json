@@ -1,0 +1,12 @@
+[
+  {
+    "id": "obj_two_point_basic",
+    "title": "Sensory physiology objectives",
+    "items": [
+      "Measure tactile acuity using the two-point test.",
+      "Relate receptor density to cortical representation.",
+      "Compare regional sensitivity."
+    ],
+    "courses": ["BIO 153","BIO 137"]
+  }
+]

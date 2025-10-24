@@ -3,259 +3,208 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>KCTCS Lab Document Generator</title>
-
-<!-- Modern font -->
+<title>KCTCS Lab Doc (JSON-backed)</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
-<!-- html2pdf for PDF export -->
-<script src="https://cdn.jsdelivr.net/npm/html2pdf.js@0.10.1/dist/html2pdf.bundle.min.js"></script>
-
 <style>
-  :root { --deep-blue: rgb(0,40,90); --margin: 0.75in; --page-width: 8.27in; --gray: #ccc; }
-  body {
-    font-family: "Inter", system-ui, sans-serif; color:#111; background:#fff; line-height:1.5;
-    padding:1.5rem; max-width:calc(var(--page-width) - 2*var(--margin)); margin:0 auto;
-  }
-  h1,h2,h3 { color:var(--deep-blue); font-weight:700; margin-bottom:0.4em; }
-  h1 { font-size:1.9rem; border-bottom:2px solid var(--gray); padding-bottom:0.3em; margin-top:0; }
-  h2 { font-size:1.4rem; margin-top:1.2em; }
-  h3 { font-size:1.05rem; margin-top:0.9em; }
-  hr { border:none; height:1px; background:var(--gray); margin:0.6rem 0 1rem; }
+  :root { --deep-blue: rgb(0,40,90); --gray:#cdd6e3; --max: 900px; }
+  body { font-family:"Inter",system-ui,sans-serif; color:#111; margin:0; padding:24px; }
+  .container { max-width: var(--max); margin: 0 auto; }
+  h1,h2,h3 { color: var(--deep-blue); margin: 0.6em 0 0.35em; }
+  h1 { border-bottom:2px solid var(--gray); padding-bottom:0.3em; }
   label { display:block; margin-top:0.75rem; font-weight:600; }
-  select,input,textarea,button {
-    width:100%; font:inherit; font-size:1rem; padding:0.5rem; border:1px solid #bbb; border-radius:6px;
-  }
-  .row { display:grid; grid-template-columns: 1fr 1fr; gap:0.75rem; }
-  .btn-row { display:flex; gap:0.5rem; flex-wrap:wrap; }
-  button.primary { background:var(--deep-blue); color:#fff; border:none; margin-top:1rem; padding:0.6rem 1rem; cursor:pointer; font-weight:600; border-radius:6px; }
-  button.primary:hover { background:#002860; }
-  button.secondary { background:#f3f5f9; color:#0b1a3a; border:1px solid #cdd6e3; margin-top:1rem; padding:0.6rem 1rem; cursor:pointer; font-weight:600; border-radius:6px; }
-  .error { color:#a40000; font-weight:600; margin-top:0.5rem; }
-  #output { margin-top:2rem; padding:1rem 1.25rem; border:1px solid var(--gray); border-radius:8px; background:#fafafa; }
+  select,input,button { width:100%; font:inherit; padding:0.55rem; border:1px solid #bbb; border-radius:6px; }
+  .row { display:grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
+  .btns { display:flex; gap:0.5rem; flex-wrap:wrap; margin-top:0.75rem; }
+  button.primary { background: var(--deep-blue); color:#fff; border:none; font-weight:700; }
+  #output { margin-top: 1rem; border:1px solid #ccc; border-radius:8px; padding:1rem 1.25rem; background:#fafafa; }
   .meta { color:#333; }
-  .meta strong { color:#000; }
-  .footer { font-size:0.8rem; color:#555; text-align:center; margin-top:1.5rem; border-top:1px solid var(--gray); padding-top:0.6rem; }
-  @media print { @page { size:A4; margin:0.75in; } form,.btn-row button:not(.print-visible) { display:none; } #output { border:none; background:#fff; } }
+  .error { margin-top: 0.5rem; color:#a40000; font-weight:700; }
 </style>
 </head>
-
 <body>
-<h1>KCTCS Lab Document Generator</h1>
+<div class="container">
+  <h1>Lab Document (JSON-backed)</h1>
 
-<form id="docForm">
+  <div id="loadError" class="error" hidden></div>
+
   <label>Course
     <select id="course">
       <option>BIO 137 — Human Anatomy & Physiology I</option>
       <option>BIO 139 — Human Anatomy & Physiology II</option>
-      <option>BIO 152 — Principles of Biology II Lecture</option>
-      <option>BIO 153 — Principles of Biology II Lab</option>
+      <option selected>BIO 153 — Principles of Biology II Lab</option>
     </select>
   </label>
 
   <div class="row">
-    <label>Instructor <input id="instructor" value="Justin N. Howard"></label>
-    <label>Lab Title <input id="labtitle" value="Two-Point Discrimination"></label>
+    <label>Instructor <input id="instructor" value="Justin N. Howard" /></label>
+    <label>Lab Title <input id="labtitle" value="Two-Point Discrimination" /></label>
   </div>
 
   <div class="row">
-    <label>Semester
-      <select id="semester"><option>Fall</option><option>Spring</option><option>Summer</option></select>
-    </label>
-    <label>Year <input id="year" value="2025"></label>
+    <label>Date Assigned <input type="date" id="dateAssigned" /></label>
+    <label>Due Date <input type="date" id="dueDate" /></label>
   </div>
 
-  <div class="row">
-    <label>Date Assigned <input type="date" id="dateAssigned"></label>
-    <label>Due Date <input type="date" id="dueDate"></label>
-  </div>
-
-  <!-- Connectors -->
-  <label>Overview
-    <select id="overview">
-      <option value="Touch acuity varies across the body due to differences in mechanoreceptor density and cortical representation.">Two-Point Discrimination overview</option>
-      <option value="Homeostasis maintains stable internal conditions through dynamic feedback mechanisms.">Homeostasis overview</option>
-      <option value="Plant structure and function illustrate key evolutionary adaptations to terrestrial life.">Plant Biology overview</option>
-    </select>
-  </label>
-
-  <label>Objectives
-    <select id="objectives">
-      <option value="<ul><li>Measure tactile acuity using the two-point test.</li><li>Relate receptor density to cortical representation.</li><li>Compare regional sensitivity.</li></ul>">Sensory physiology objectives</option>
-      <option value="<ul><li>Define homeostatic control loops.</li><li>Identify negative and positive feedback examples.</li><li>Apply concepts to physiological systems.</li></ul>">Homeostasis objectives</option>
-      <option value="<ul><li>Identify plant tissue types.</li><li>Describe xylem and phloem function.</li><li>Relate structure to adaptation.</li></ul>">Plant tissue objectives</option>
-    </select>
-  </label>
-
-  <label>Background
-    <select id="background">
-      <option value="Mechanoreceptors such as Merkel cells and Meissner corpuscles enable fine touch discrimination. Density differences across body regions influence perceptual resolution.">Sensory physiology background</option>
-      <option value="Negative feedback stabilizes physiological variables, while positive feedback amplifies specific biological responses.">Homeostasis background</option>
-      <option value="Plant vascular tissue evolved to transport water, minerals, and sugars efficiently across diverse environments.">Plant biology background</option>
-    </select>
-  </label>
+  <!-- These will be filled from JSON -->
+  <label>Overview <select id="overview"></select></label>
+  <label>Objectives <select id="objectives"></select></label>
+  <label>Background <select id="background"></select></label>
 
   <div id="err" class="error" role="alert" aria-live="polite"></div>
 
-  <div class="btn-row">
-    <button type="button" id="generate" class="primary">Render Document</button>
-    <button type="button" id="downloadPdf" class="secondary">Download PDF</button>
-    <button type="button" id="downloadHtml" class="secondary">Download HTML</button>
-    <button type="button" id="print" class="secondary print-visible">Print</button>
+  <div class="btns">
+    <button type="button" id="render" class="primary">Render</button>
   </div>
-</form>
 
-<section id="output" hidden></section>
-
-<footer class="footer" id="footer">
-  KCTCS Somerset · Biology Division · Generated via GitHub Pages
-</footer>
+  <section id="output" hidden></section>
+</div>
 
 <script>
-  // Default dates: today and +7 days
+  // Basic markdown -> HTML (bold/italic only; swap for a parser later)
+  function mdToHtml(md){
+    return (md || "")
+      .replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>')
+      .replace(/\*(.+?)\*/g,'<em>$1</em>');
+  }
+  function toOption(label, value){
+    const o = document.createElement('option');
+    o.textContent = label;
+    o.value = value;
+    return o;
+  }
+  function fmt(dateStr){
+    if(!dateStr) return "";
+    const d = new Date(dateStr + 'T00:00:00'); // avoid TZ drift
+    if(isNaN(d)) return "";
+    return d.toLocaleDateString(undefined, { year:'numeric', month:'short', day:'numeric' });
+  }
+
+  // Default dates
   const todayISO = new Date().toISOString().slice(0,10);
   const plus7 = new Date(Date.now() + 7*24*60*60*1000).toISOString().slice(0,10);
   document.getElementById('dateAssigned').value = todayISO;
   document.getElementById('dueDate').value = plus7;
 
-  function fmt(dateStr) {
-    if (!dateStr) return "";
-    const d = new Date(dateStr + 'T00:00:00');
-    if (isNaN(d)) return "";
-    return d.toLocaleDateString(undefined, { year:'numeric', month:'short', day:'numeric' });
+  // State
+  let SNIPS = [];
+  let OBJS = [];
+
+  async function safeFetch(path){
+    const r = await fetch(path, { cache: 'no-store' });
+    if(!r.ok) throw new Error(`HTTP ${r.status} for ${path}`);
+    return r.json();
   }
 
-  function buildRendered() {
+  function currentCourseCode(){
+    // "BIO 153 — Principles..." -> "BIO 153"
+    return document.getElementById('course').value.split(' — ')[0].trim();
+  }
+
+  function populateDropdowns(){
+    const course = currentCourseCode();
+
+    const ovwSel = document.getElementById('overview');
+    const bkgSel = document.getElementById('background');
+    const objSel = document.getElementById('objectives');
+
+    ovwSel.innerHTML = '';
+    bkgSel.innerHTML = '';
+    objSel.innerHTML = '';
+
+    const overviews = SNIPS.filter(s => s.section === 'overview' && (!s.courses || s.courses.includes(course)));
+    const backgrounds = SNIPS.filter(s => s.section === 'background' && (!s.courses || s.courses.includes(course)));
+    const objectives = OBJS.filter(o => !o.courses || o.courses.includes(course));
+
+    if (overviews.length === 0) ovwSel.appendChild(toOption('— no overview for this course —', ''));
+    else overviews.forEach(s => ovwSel.appendChild(toOption(s.title, s.id)));
+
+    if (backgrounds.length === 0) bkgSel.appendChild(toOption('— no background for this course —', ''));
+    else backgrounds.forEach(s => bkgSel.appendChild(toOption(s.title, s.id)));
+
+    if (objectives.length === 0) objSel.appendChild(toOption('— no objectives for this course —', ''));
+    else objectives.forEach(o => objSel.appendChild(toOption(o.title, o.id)));
+  }
+
+  function byId(arr, id){ return arr.find(x => x.id === id); }
+
+  function buildRendered(){
     const course = document.getElementById('course').value;
-    const instructor = (document.getElementById('instructor').value || "").trim();
-    const semester = document.getElementById('semester').value;
-    const year = (document.getElementById('year').value || "").trim();
-    const labtitle = (document.getElementById('labtitle').value || "").trim();
-    const overview = document.getElementById('overview').value;
-    const objectives = document.getElementById('objectives').value;
-    const background = document.getElementById('background').value;
+    const instructor = document.getElementById('instructor').value.trim();
+    const labtitle = document.getElementById('labtitle').value.trim();
     const dateAssigned = document.getElementById('dateAssigned').value;
     const dueDate = document.getElementById('dueDate').value;
 
     const err = document.getElementById('err');
-    err.textContent = "";
+    err.textContent = '';
     if (dateAssigned && dueDate && new Date(dueDate) < new Date(dateAssigned)) {
-      err.textContent = "Due Date cannot be earlier than Date Assigned.";
+      err.textContent = 'Due Date cannot be earlier than Date Assigned.';
       return null;
     }
 
-    const metaLines = `
+    const ovwId = document.getElementById('overview').value;
+    const bkgId = document.getElementById('background').value;
+    const objId = document.getElementById('objectives').value;
+
+    const ovw = byId(SNIPS, ovwId);
+    const bkg = byId(SNIPS, bkgId);
+    const obj = byId(OBJS, objId);
+
+    const objectivesHtml = obj ? `<ul>${(obj.items || []).map(i=>`<li>${i}</li>`).join('')}</ul>` : '<p>(No objectives selected)</p>';
+    const overviewHtml = ovw ? mdToHtml(ovw.body_md) : '(No overview selected)';
+    const backgroundHtml = bkg ? mdToHtml(bkg.body_md) : '(No background selected)';
+
+    const meta = `
       <p class="meta">
         <strong>${course}</strong><br>
-        <em>${semester} ${year}</em> · Instructor: ${instructor}
+        Instructor: ${instructor || '—'}
         ${dateAssigned ? `<br><strong>Assigned:</strong> ${fmt(dateAssigned)}` : ``}
         ${dueDate ? ` · <strong>Due:</strong> ${fmt(dueDate)}` : ``}
       </p>
     `;
 
-    const html = `
-      <h2>${labtitle || "Untitled Activity"}</h2>
+    return `
+      <h2>${labtitle || 'Untitled Activity'}</h2>
       <hr>
-      ${metaLines}
+      ${meta}
       <h3>Overview</h3>
-      <p>${overview}</p>
-
+      <p>${overviewHtml}</p>
       <h3>Objectives</h3>
-      ${objectives}
-
+      ${objectivesHtml}
       <h3>Background</h3>
-      <p>${background}</p>
+      <p>${backgroundHtml}</p>
     `;
-
-    // Update footer hint
-    document.getElementById('footer').textContent =
-      `KCTCS Somerset · ${course.split('—')[0].trim()} · ${semester} ${year}`;
-
-    return { html, labtitle, course, semester, year };
   }
 
-  // Render to page
-  document.getElementById('generate').addEventListener('click', () => {
-    const built = buildRendered();
-    if (!built) return;
-    const output = document.getElementById('output');
-    output.innerHTML = built.html;
-    output.hidden = false;
-  });
-
-  // Print shortcut
-  document.getElementById('print').addEventListener('click', () => {
-    const built = buildRendered();
-    if (!built) return;
-    const output = document.getElementById('output');
-    output.innerHTML = built.html;
-    output.hidden = false;
-    window.print();
-  });
-
-  // Download PDF (html2pdf on #output)
-  document.getElementById('downloadPdf').addEventListener('click', async () => {
-    const built = buildRendered();
-    if (!built) return;
-
-    // Ensure output is visible for capture
-    const output = document.getElementById('output');
-    output.innerHTML = built.html;
-    output.hidden = false;
-
-    const fileSafe = (built.labtitle || "document")
-      .replace(/[^\w\-]+/g, "_")
-      .replace(/^_+|_+$/g, "");
-
-    const opt = {
-      margin:       0.75,           // inches, matches A4 margin
-      filename:     `${fileSafe}.pdf`,
-      image:        { type: 'jpeg', quality: 0.98 },
-      html2canvas:  { scale: 2, useCORS: true },
-      jsPDF:        { unit: 'in', format: 'a4', orientation: 'portrait' }
-    };
-
+  // Load JSON on start
+  (async function init(){
+    const errorBox = document.getElementById('loadError');
     try {
-      await html2pdf().set(opt).from(output).save();
+      console.log('Loading JSON…');
+      const [snips, objs] = await Promise.all([
+        safeFetch('./data/snippets.json'),
+        safeFetch('./data/objectives.json')
+      ]);
+      SNIPS = snips;
+      OBJS = objs;
+      console.log('Loaded snippets:', SNIPS);
+      console.log('Loaded objectives:', OBJS);
+      populateDropdowns();
+      // Re-filter when course changes
+      document.getElementById('course').addEventListener('change', populateDropdowns);
     } catch (e) {
-      alert("PDF export failed in this browser. You can use the Print button and choose 'Save as PDF' instead.");
-      console.error(e);
+      console.error('Failed to load JSON:', e);
+      errorBox.textContent = `Could not load data: ${e.message}. Check folder paths and that you're previewing via a server (Live Preview), not opening the file directly.`;
+      errorBox.hidden = false;
     }
-  });
+  })();
 
-  // Download standalone HTML
-  document.getElementById('downloadHtml').addEventListener('click', () => {
-    const built = buildRendered();
-    if (!built) return;
-
-    const styleBlock = document.querySelector('style')?.outerHTML || '';
-    const fontLink = document.querySelector('link[href*="fonts.googleapis"]')?.outerHTML || '';
-    const docHtml = `
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>${(built.labtitle || "Document").replace(/</g,"&lt;")}</title>
-${fontLink}
-${styleBlock}
-</head>
-<body>
-<section id="output">
-${built.html}
-</section>
-</body>
-</html>`.trim();
-
-    const blob = new Blob([docHtml], { type: 'text/html' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    const fileSafe = (built.labtitle || "document").replace(/[^\w\-]+/g, "_").replace(/^_+|_+$/g, "");
-    a.href = url;
-    a.download = `${fileSafe}.html`;
-    document.body.appendChild(a);
-    a.click();
-    a.remove();
-    URL.revokeObjectURL(url);
+  // Render button
+  document.getElementById('render').addEventListener('click', () => {
+    const html = buildRendered();
+    if (!html) return;
+    const out = document.getElementById('output');
+    out.innerHTML = html;
+    out.hidden = false;
   });
 </script>
 </body>
